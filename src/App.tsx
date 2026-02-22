@@ -3,15 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  Github, Mail, ExternalLink, ArrowRight, ChevronDown, 
-  MessageSquare, BookOpen, Layout, Cpu, Briefcase, 
-  Send, User, Bot, X, Menu
+import {
+  Github, Mail, ArrowRight, ChevronDown,
+  BookOpen, Layout, Cpu, X, Menu
 } from "lucide-react";
-import { GoogleGenAI } from "@google/genai";
-import Markdown from "react-markdown";
 
 // Types
 type View = "home" | "apps" | "blog" | "docs";
@@ -22,11 +19,6 @@ interface Project {
   description: string;
   image: string;
   tags: string[];
-}
-
-interface Message {
-  role: "user" | "model";
-  text: string;
 }
 
 // Data
@@ -85,49 +77,6 @@ export default function App() {
   const [currentView, setCurrentView] = useState<View>("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
-  const [chatMessages, setChatMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  // Scroll to bottom of chat
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !selectedApp) return;
-
-    const userMsg: Message = { role: "user", text: inputMessage };
-    setChatMessages(prev => [...prev, userMsg]);
-    setInputMessage("");
-    setIsTyping(true);
-
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const model = ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [...chatMessages, userMsg].map(m => ({
-          role: m.role,
-          parts: [{ text: m.text }]
-        })),
-        config: {
-          systemInstruction: `You are the ${selectedApp} assistant in the ipseforma ecosystem. 
-          ipseforma means 'ipse(self) + forma(form)' - a space for shaping one's self. 
-          Be professional, minimalist, and helpful. Keep responses concise.`
-        }
-      });
-
-      const response = await model;
-      const aiMsg: Message = { role: "model", text: response.text || "Sorry, I couldn't process that." };
-      setChatMessages(prev => [...prev, aiMsg]);
-    } catch (error) {
-      console.error("Chat error:", error);
-      setChatMessages(prev => [...prev, { role: "model", text: "Error connecting to Gemini API." }]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
 
   const NavLinks = () => (
     <div className="flex flex-col md:flex-row gap-8 text-sm uppercase tracking-widest font-medium">
@@ -142,7 +91,7 @@ export default function App() {
     <div className="min-h-screen font-sans selection:bg-black selection:text-white bg-white text-black">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 px-6 py-8 flex justify-between items-center mix-blend-difference text-white">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="text-xl font-serif italic font-bold cursor-pointer"
@@ -150,7 +99,7 @@ export default function App() {
         >
           ipseforma.
         </motion.div>
-        
+
         {/* Desktop Nav */}
         <div className="hidden md:block">
           <NavLinks />
@@ -165,7 +114,7 @@ export default function App() {
       {/* Mobile Nav Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -196,7 +145,7 @@ export default function App() {
                   끊임없이 변화하는 나를 관찰하고, <br />
                   더 나은 모습으로 빚어가는 정적인 실험실입니다.
                 </p>
-                <motion.button 
+                <motion.button
                   whileHover={{ x: 10 }}
                   onClick={() => setCurrentView("apps")}
                   className="mt-12 flex items-center gap-4 text-sm uppercase tracking-widest font-bold group"
@@ -205,7 +154,7 @@ export default function App() {
                 </motion.button>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1, duration: 1 }}
@@ -225,7 +174,7 @@ export default function App() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
                 {PROJECTS.map((project, index) => (
-                  <motion.div 
+                  <motion.div
                     key={project.title}
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -234,8 +183,8 @@ export default function App() {
                     className="group cursor-pointer"
                   >
                     <div className="aspect-video overflow-hidden bg-white/5 mb-6 relative">
-                      <img 
-                        src={project.image} 
+                      <img
+                        src={project.image}
                         alt={project.title}
                         className="w-full h-full object-cover grayscale opacity-60 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700"
                         referrerPolicy="no-referrer"
@@ -313,7 +262,7 @@ export default function App() {
                   <motion.button
                     key={app.id}
                     whileHover={{ y: -5 }}
-                    onClick={() => { setSelectedApp(app.id); setChatMessages([]); }}
+                    onClick={() => { setSelectedApp(app.id); }}
                     className={`p-8 border text-left transition-all ${selectedApp === app.id ? "bg-black text-white border-black" : "bg-white border-black/10 hover:border-black"}`}
                   >
                     <div className="mb-6">{app.icon}</div>
@@ -323,13 +272,13 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Chat Interface */}
+              {/* Detail View interface */}
               <AnimatePresence>
                 {selectedApp && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="border border-black flex flex-col h-[600px] bg-white"
+                    className="border border-black flex flex-col h-[400px] bg-white"
                   >
                     <div className="p-4 border-b border-black flex justify-between items-center bg-black text-white">
                       <div className="flex items-center gap-3">
@@ -341,53 +290,13 @@ export default function App() {
                       <button onClick={() => setSelectedApp(null)} className="hover:opacity-50"><X size={20} /></button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                      {chatMessages.length === 0 && (
-                        <div className="h-full flex flex-col items-center justify-center text-black/20 italic">
-                          <MessageSquare size={48} className="mb-4" />
-                          <p>Start a conversation with {AVAILABLE_APPS.find(a => a.id === selectedApp)?.name}</p>
-                        </div>
-                      )}
-                      {chatMessages.map((msg, i) => (
-                        <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                          <div className={`max-w-[80%] p-4 rounded-sm flex gap-4 ${msg.role === "user" ? "bg-black text-white" : "bg-black/5 text-black"}`}>
-                            <div className="mt-1">
-                              {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
-                            </div>
-                            <div className="prose prose-sm prose-invert max-w-none">
-                              <Markdown>{msg.text}</Markdown>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      {isTyping && (
-                        <div className="flex justify-start">
-                          <div className="bg-black/5 p-4 rounded-sm animate-pulse flex gap-4">
-                            <Bot size={16} className="mt-1" />
-                            <span className="text-sm italic">Thinking...</span>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={chatEndRef} />
+                    <div className="flex-1 overflow-y-auto p-12 flex flex-col items-center justify-center text-center space-y-6">
+                      <h2 className="text-3xl font-serif italic">Coming Soon</h2>
+                      <p className="text-black/60 max-w-md">
+                        The {AVAILABLE_APPS.find(a => a.id === selectedApp)?.name} module is currently under development. Please check back later for updates.
+                      </p>
                     </div>
 
-                    <div className="p-4 border-t border-black flex gap-4">
-                      <input 
-                        type="text" 
-                        value={inputMessage}
-                        onChange={(e) => setInputMessage(e.target.value)}
-                        onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                        placeholder="Type your message..."
-                        className="flex-1 bg-transparent outline-none text-sm"
-                      />
-                      <button 
-                        onClick={handleSendMessage}
-                        disabled={isTyping || !inputMessage.trim()}
-                        className="p-2 bg-black text-white disabled:opacity-30 transition-opacity"
-                      >
-                        <Send size={18} />
-                      </button>
-                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -415,7 +324,7 @@ export default function App() {
             <p className="text-sm font-medium">Seoul, South Korea</p>
           </div>
         </div>
-        
+
         <div className="mt-24 pt-8 border-t border-white/5 flex justify-between items-center text-[10px] uppercase tracking-widest text-white/20">
           <p>© 2024 ipseforma</p>
           <p>자아를 빚어내는 공간</p>

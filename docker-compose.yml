@@ -5,13 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        # Pass environment variables as build arguments for Vite
-        - GEMINI_API_KEY=${GEMINI_API_KEY}
-        - APP_URL=${APP_URL}
     ports:
       # Map localhost port 8080 to container port 80
       - "8080:80"
     restart: unless-stopped
-    env_file:
-      - .env

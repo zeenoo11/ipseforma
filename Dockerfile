@@ -10,12 +10,6 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
-# Accept build arguments to embed in Vite static files
-ARG GEMINI_API_KEY
-ARG APP_URL
-ENV GEMINI_API_KEY=$GEMINI_API_KEY
-ENV APP_URL=$APP_URL
-
 # Build the app into the /app/dist folder
 RUN npm run build
 
