@@ -3,15 +3,42 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import {
-  Github, Mail, ArrowRight, ChevronDown,
-  BookOpen, Layout, Cpu, X, Menu
+  ArrowRight,
+  BookOpen,
+  Cpu,
+  ExternalLink,
+  FileText,
+  Github,
+  Layout,
+  Mail,
+  Menu,
+  Moon,
+  Pencil,
+  PenTool,
+  Plus,
+  Save,
+  Sun,
+  Trash2,
+  X,
 } from "lucide-react";
+import { DotPattern } from "@/components/magicui/dot-pattern";
+import { BlurFade } from "@/components/magicui/blur-fade";
+import { BorderBeam } from "@/components/magicui/border-beam";
+import { ToeflApp } from "./toefl/ToeflApp";
 
-// Types
-type View = "home" | "apps" | "blog" | "docs";
+type View = "home" | "apps" | "blog";
+type Theme = "light" | "dark";
+
+interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface Project {
   title: string;
@@ -21,313 +48,673 @@ interface Project {
   tags: string[];
 }
 
-// Data
 const PROJECTS: Project[] = [
   {
     title: "Project Alpha",
     category: "Design System",
-    description: "A comprehensive design system for modern web applications.",
+    description: "A scalable design system for modern web products.",
     image: "https://picsum.photos/seed/alpha/800/600",
-    tags: ["React", "Tailwind", "TypeScript"]
+    tags: ["React", "Tailwind", "TypeScript"],
   },
   {
     title: "Project Beta",
     category: "E-commerce",
-    description: "A minimalist shopping experience focused on typography.",
+    description: "A structured commerce experience with clear UX flows.",
     image: "https://picsum.photos/seed/beta/800/600",
-    tags: ["Next.js", "Stripe", "Framer Motion"]
+    tags: ["Next.js", "Stripe", "Framer Motion"],
   },
   {
     title: "Project Gamma",
     category: "Analytics",
-    description: "Visualizing complex data through simple monochrome interfaces.",
+    description: "A clean dashboard for actionable product insights.",
     image: "https://picsum.photos/seed/gamma/800/600",
-    tags: ["D3.js", "Python", "FastAPI"]
-  }
-];
-
-const SKILLS = [
-  { category: "Frontend", items: ["React", "TypeScript", "Tailwind CSS", "Next.js", "Framer Motion"] },
-  { category: "Backend", items: ["Node.js", "Express", "PostgreSQL", "Prisma", "Python"] },
-  { category: "Tools", items: ["Git", "Docker", "Figma", "Vercel", "AWS"] }
-];
-
-const EXPERIENCE = [
-  {
-    company: "Tech Innovators",
-    role: "Senior Frontend Engineer",
-    period: "2022 - Present",
-    description: "Leading the development of high-performance web applications using React and modern CSS."
+    tags: ["D3.js", "Python", "FastAPI"],
   },
-  {
-    company: "Creative Studio X",
-    role: "Full Stack Developer",
-    period: "2020 - 2022",
-    description: "Built custom e-commerce solutions and interactive brand experiences."
-  }
 ];
 
 const AVAILABLE_APPS = [
-  { id: "writer", name: "Creative Writer", icon: <BookOpen size={20} />, description: "AI-powered writing assistant." },
-  { id: "coder", name: "Code Helper", icon: <Cpu size={20} />, description: "Expert in debugging and refactoring." },
-  { id: "designer", name: "Design Critic", icon: <Layout size={20} />, description: "Feedback on UI/UX and aesthetics." }
+  {
+    id: "toefl",
+    name: "TOEFL Writing",
+    icon: <PenTool size={20} />,
+    description: "Practice for the updated TOEFL Writing task.",
+    available: true,
+  },
+  {
+    id: "writer",
+    name: "Creative Writer",
+    icon: <BookOpen size={20} />,
+    description: "Writing workflow assistant.",
+    available: false,
+  },
+  {
+    id: "coder",
+    name: "Code Helper",
+    icon: <Cpu size={20} />,
+    description: "Refactoring and debugging support.",
+    available: false,
+  },
+  {
+    id: "designer",
+    name: "Design Critic",
+    icon: <Layout size={20} />,
+    description: "UI and UX review support.",
+    available: false,
+  },
 ];
 
 export default function App() {
+  const [theme, setTheme] = useState<Theme>("light");
   const [currentView, setCurrentView] = useState<View>("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [postTitle, setPostTitle] = useState("");
+  const [postContent, setPostContent] = useState("");
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
 
-  const NavLinks = () => (
-    <div className="flex flex-col md:flex-row gap-8 text-sm uppercase tracking-widest font-medium">
-      <button onClick={() => { setCurrentView("home"); setIsMenuOpen(false); }} className={`hover:opacity-50 transition-opacity ${currentView === "home" ? "underline underline-offset-8" : ""}`}>Home</button>
-      <button onClick={() => { setCurrentView("apps"); setIsMenuOpen(false); }} className={`hover:opacity-50 transition-opacity ${currentView === "apps" ? "underline underline-offset-8" : ""}`}>Apps</button>
-      <button onClick={() => { setCurrentView("blog"); setIsMenuOpen(false); }} className="hover:opacity-50 transition-opacity cursor-not-allowed opacity-30">Blog</button>
-      <button onClick={() => { setCurrentView("docs"); setIsMenuOpen(false); }} className="hover:opacity-50 transition-opacity cursor-not-allowed opacity-30">Docs</button>
-    </div>
+  const isDark = theme === "dark";
+
+  useEffect(() => {
+    const raw = localStorage.getItem("ipseforma-blog-posts");
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as BlogPost[];
+      setBlogPosts(parsed);
+    } catch {
+      setBlogPosts([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("ipseforma-blog-posts", JSON.stringify(blogPosts));
+  }, [blogPosts]);
+
+  const sortedPosts = useMemo(
+    () =>
+      [...blogPosts].sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      ),
+    [blogPosts]
   );
 
+  const clearBlogForm = () => {
+    setPostTitle("");
+    setPostContent("");
+    setEditingPostId(null);
+  };
+
+  const handleSavePost = () => {
+    if (!postTitle.trim() || !postContent.trim()) return;
+    const now = new Date().toISOString();
+
+    if (editingPostId) {
+      setBlogPosts((prev) =>
+        prev.map((post) =>
+          post.id === editingPostId
+            ? {
+                ...post,
+                title: postTitle.trim(),
+                content: postContent.trim(),
+                updatedAt: now,
+              }
+            : post
+        )
+      );
+      clearBlogForm();
+      return;
+    }
+
+    const newPost: BlogPost = {
+      id: crypto.randomUUID(),
+      title: postTitle.trim(),
+      content: postContent.trim(),
+      createdAt: now,
+      updatedAt: now,
+    };
+    setBlogPosts((prev) => [newPost, ...prev]);
+    clearBlogForm();
+  };
+
+  const handleEditPost = (post: BlogPost) => {
+    setEditingPostId(post.id);
+    setPostTitle(post.title);
+    setPostContent(post.content);
+  };
+
+  const handleDeletePost = (postId: string) => {
+    setBlogPosts((prev) => prev.filter((post) => post.id !== postId));
+    if (editingPostId === postId) clearBlogForm();
+  };
+
   return (
-    <div className="min-h-screen font-sans selection:bg-black selection:text-white bg-white text-black">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 px-6 py-8 flex justify-between items-center mix-blend-difference text-white">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-xl font-serif italic font-bold cursor-pointer"
-          onClick={() => setCurrentView("home")}
-        >
-          ipseforma.
-        </motion.div>
+    <div
+      className={`min-h-screen font-sans transition-colors ${
+        isDark
+          ? "bg-[#0b1020] text-slate-100 selection:bg-slate-100 selection:text-slate-900"
+          : "bg-[#f6f8fc] text-slate-900 selection:bg-slate-900 selection:text-slate-100"
+      }`}
+    >
+      <nav
+        className={`fixed top-0 z-50 w-full border-b px-6 py-5 backdrop-blur-xl ${
+          isDark
+            ? "border-white/10 bg-[#0b1020]/75"
+            : "border-slate-200 bg-[#f6f8fc]/80"
+        }`}
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <button
+            onClick={() => setCurrentView("home")}
+            className="text-xl font-serif italic font-bold"
+          >
+            ipseforma.
+          </button>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:block">
-          <NavLinks />
+          <div className="hidden items-center gap-6 text-sm font-medium uppercase tracking-widest md:flex">
+            <button
+              onClick={() => setCurrentView("home")}
+              className={
+                currentView === "home"
+                  ? isDark
+                    ? "text-white"
+                    : "text-slate-900"
+                  : isDark
+                  ? "text-white/50 hover:text-white"
+                  : "text-slate-500 hover:text-slate-900"
+              }
+            >
+              Home
+            </button>
+            <button
+              onClick={() => setCurrentView("apps")}
+              className={
+                currentView === "apps"
+                  ? isDark
+                    ? "text-white"
+                    : "text-slate-900"
+                  : isDark
+                  ? "text-white/50 hover:text-white"
+                  : "text-slate-500 hover:text-slate-900"
+              }
+            >
+              Apps
+            </button>
+            <button
+              onClick={() => setCurrentView("blog")}
+              className={
+                currentView === "blog"
+                  ? isDark
+                    ? "text-white"
+                    : "text-slate-900"
+                  : isDark
+                  ? "text-white/50 hover:text-white"
+                  : "text-slate-500 hover:text-slate-900"
+              }
+            >
+              Blog
+            </button>
+            <button
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className={`rounded-lg border p-2 transition-colors ${
+                isDark
+                  ? "border-white/20 text-white/70 hover:text-white"
+                  : "border-slate-300 text-slate-600 hover:text-slate-900"
+              }`}
+              aria-label="테마 전환"
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 md:hidden">
+            <button
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className={`rounded-lg border p-2 ${
+                isDark ? "border-white/20 text-white/70" : "border-slate-300 text-slate-600"
+              }`}
+              aria-label="테마 전환"
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
+              className={isDark ? "text-white/80" : "text-slate-700"}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
-
-        {/* Mobile Menu Toggle */}
-        <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </nav>
 
-      {/* Mobile Nav Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 bg-black text-white z-40 flex flex-col items-center justify-center gap-12"
+            exit={{ opacity: 0, y: -12 }}
+            className={`fixed inset-0 z-40 flex flex-col items-center justify-center gap-10 ${
+              isDark ? "bg-[#0b1020]" : "bg-[#f6f8fc]"
+            }`}
           >
-            <NavLinks />
+            <button
+              onClick={() => {
+                setCurrentView("home");
+                setIsMenuOpen(false);
+              }}
+              className="text-xl font-semibold uppercase tracking-widest"
+            >
+              Home
+            </button>
+            <button
+              onClick={() => {
+                setCurrentView("apps");
+                setIsMenuOpen(false);
+              }}
+              className="text-xl font-semibold uppercase tracking-widest"
+            >
+              Apps
+            </button>
+            <button
+              onClick={() => {
+                setCurrentView("blog");
+                setIsMenuOpen(false);
+              }}
+              className="text-xl font-semibold uppercase tracking-widest"
+            >
+              Blog
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <main className="pt-24">
+      <main className="pt-20">
         {currentView === "home" && (
           <>
-            {/* Hero Section */}
-            <section className="min-h-[90vh] flex flex-col justify-center px-6 md:px-24 relative overflow-hidden">
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="max-w-4xl"
-              >
-                <h1 className="text-5xl md:text-9xl font-serif italic leading-tight mb-8 tracking-tighter">
-                  ipseforma <br />
-                  <span className="not-italic font-sans font-light text-3xl md:text-6xl text-black/40">자아를 빚어내는 공간</span>
-                </h1>
-                <p className="text-lg md:text-2xl text-black/60 font-light max-w-2xl leading-relaxed text-balance">
-                  ipse(자아)와 forma(형상)의 결합. <br />
-                  끊임없이 변화하는 나를 관찰하고, <br />
-                  더 나은 모습으로 빚어가는 정적인 실험실입니다.
-                </p>
-                <motion.button
-                  whileHover={{ x: 10 }}
-                  onClick={() => setCurrentView("apps")}
-                  className="mt-12 flex items-center gap-4 text-sm uppercase tracking-widest font-bold group"
-                >
-                  Explore Apps <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                </motion.button>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 1 }}
-                className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-              >
-                <span className="text-[10px] uppercase tracking-[0.3em] text-black/40">Scroll</span>
-                <ChevronDown size={16} className="text-black/20 animate-bounce" />
-              </motion.div>
-            </section>
-
-            {/* Portfolio Section */}
-            <section id="work" className="py-32 px-6 md:px-24 bg-black text-white">
-              <div className="mb-24">
-                <h2 className="text-sm uppercase tracking-[0.4em] text-white/40 mb-4">Selected Projects</h2>
-                <div className="h-px w-full bg-white/10" />
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
-                {PROJECTS.map((project, index) => (
-                  <motion.div
-                    key={project.title}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="group cursor-pointer"
+            <section className="relative overflow-hidden px-6 py-24 md:px-24 md:py-28">
+              <DotPattern
+                width={22}
+                height={22}
+                cr={1.1}
+                className={isDark ? "text-white/[0.08]" : "text-slate-700/[0.10]"}
+              />
+              <div className="relative mx-auto max-w-6xl">
+                <BlurFade delay={0.05}>
+                  <p
+                    className={`mb-4 text-xs font-medium uppercase tracking-[0.3em] ${
+                      isDark ? "text-slate-300/70" : "text-slate-500"
+                    }`}
                   >
-                    <div className="aspect-video overflow-hidden bg-white/5 mb-6 relative">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover grayscale opacity-60 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-xs uppercase tracking-widest text-white/40 mb-2">{project.category}</p>
-                        <h3 className="text-2xl font-serif italic mb-4">{project.title}</h3>
-                        <div className="flex gap-2">
-                          {project.tags.map(tag => (
-                            <span key={tag} className="text-[10px] border border-white/20 px-2 py-1 rounded-full text-white/60">{tag}</span>
-                          ))}
-                        </div>
-                      </div>
-                      <ArrowRight className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                    </div>
-                  </motion.div>
-                ))}
+                    Portfolio
+                  </p>
+                </BlurFade>
+                <BlurFade delay={0.1}>
+                  <h1 className="mb-6 text-5xl font-serif italic tracking-tight md:text-7xl">
+                    Ipse + Forma
+                  </h1>
+                </BlurFade>
+                <BlurFade delay={0.15}>
+                  <p
+                    className={`max-w-2xl text-base leading-relaxed md:text-lg ${
+                      isDark ? "text-slate-300/75" : "text-slate-600"
+                    }`}
+                  >
+                    ipse(자아) + forma(형성) 는 자아를 만들어간다는 의미로, 성향, 가치관,
+                    취미, 철학을 찾아가는 공간입니다.
+                  </p>
+                </BlurFade>
+                <BlurFade delay={0.2}>
+                  <div className="mt-10 flex flex-wrap gap-3">
+                    <button
+                      onClick={() => setCurrentView("apps")}
+                      className={`inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition-colors ${
+                        isDark
+                          ? "border-slate-500/50 bg-slate-700/30 hover:bg-slate-700/50"
+                          : "border-slate-300 bg-white hover:bg-slate-50"
+                      }`}
+                    >
+                      Open Apps <ArrowRight size={14} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const section = document.getElementById("work");
+                        if (section) section.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className={`inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition-colors ${
+                        isDark
+                          ? "border-slate-500/50 hover:bg-slate-700/30"
+                          : "border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      View Projects <ExternalLink size={14} />
+                    </button>
+                  </div>
+                </BlurFade>
               </div>
             </section>
 
-            {/* Skills & Experience */}
-            <section className="py-32 px-6 md:px-24 bg-white">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
-                {/* Skills */}
-                <div>
-                  <h2 className="text-sm uppercase tracking-[0.4em] text-black/40 mb-12">Core Skills</h2>
-                  <div className="space-y-12">
-                    {SKILLS.map(skillGroup => (
-                      <div key={skillGroup.category}>
-                        <h3 className="text-xs uppercase tracking-widest font-bold mb-4">{skillGroup.category}</h3>
-                        <div className="flex flex-wrap gap-3">
-                          {skillGroup.items.map(skill => (
-                            <span key={skill} className="px-4 py-2 bg-black/5 hover:bg-black hover:text-white transition-colors text-sm rounded-sm">
-                              {skill}
-                            </span>
-                          ))}
+            <section id="work" className="px-6 py-16 md:px-24 md:py-20">
+              <div className="mx-auto max-w-6xl">
+                <BlurFade delay={0.05} inView>
+                  <h2 className="mb-10 text-3xl font-serif italic md:text-4xl">Selected Projects</h2>
+                </BlurFade>
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  {PROJECTS.map((project, idx) => (
+                    <BlurFade key={project.title} delay={idx * 0.1} inView>
+                      <article
+                        className={`relative overflow-hidden rounded-xl border ${
+                          isDark ? "border-slate-700/80 bg-slate-900/50" : "border-slate-200 bg-white"
+                        }`}
+                      >
+                        <img
+                          src={project.image}
+                          alt={project.title}
+                          referrerPolicy="no-referrer"
+                          className="h-52 w-full object-cover"
+                        />
+                        <div className="space-y-3 p-5">
+                          <p className={isDark ? "text-xs text-slate-300/70" : "text-xs text-slate-500"}>
+                            {project.category}
+                          </p>
+                          <h3 className="text-xl font-semibold">{project.title}</h3>
+                          <p className={isDark ? "text-sm text-slate-300/80" : "text-sm text-slate-600"}>
+                            {project.description}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {project.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className={`rounded-full border px-2.5 py-1 text-[10px] ${
+                                  isDark
+                                    ? "border-slate-600 text-slate-300"
+                                    : "border-slate-300 text-slate-600"
+                                }`}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Experience */}
-                <div>
-                  <h2 className="text-sm uppercase tracking-[0.4em] text-black/40 mb-12">Experience</h2>
-                  <div className="space-y-12">
-                    {EXPERIENCE.map(exp => (
-                      <div key={exp.company} className="border-l border-black/10 pl-8 relative">
-                        <div className="absolute w-2 h-2 bg-black rounded-full -left-[4.5px] top-2" />
-                        <p className="text-xs text-black/40 mb-1">{exp.period}</p>
-                        <h3 className="text-xl font-serif italic mb-1">{exp.role}</h3>
-                        <p className="text-sm font-bold mb-4">{exp.company}</p>
-                        <p className="text-black/60 text-sm leading-relaxed">{exp.description}</p>
-                      </div>
-                    ))}
-                  </div>
+                        <BorderBeam
+                          colorFrom={isDark ? "#64748b" : "#94a3b8"}
+                          colorTo={isDark ? "#e2e8f0" : "#475569"}
+                          duration={8}
+                        />
+                      </article>
+                    </BlurFade>
+                  ))}
                 </div>
               </div>
             </section>
+
           </>
         )}
 
         {currentView === "apps" && (
-          <section className="min-h-[80vh] px-6 md:px-24 py-12">
-            <div className="max-w-6xl mx-auto">
-              <div className="mb-12">
-                <h2 className="text-sm uppercase tracking-[0.4em] text-black/40 mb-4">ipseforma Apps</h2>
-                <h1 className="text-4xl md:text-6xl font-serif italic">Choose your interface.</h1>
-              </div>
+          <section className="relative px-6 py-16 md:px-24 md:py-20">
+            <DotPattern
+              width={20}
+              height={20}
+              cr={1}
+              className={isDark ? "text-white/[0.07]" : "text-slate-700/[0.1]"}
+            />
+            <div className="relative mx-auto max-w-6xl">
+              <BlurFade delay={0.05}>
+                <h2 className="mb-8 text-3xl font-serif italic md:text-4xl">Applications</h2>
+              </BlurFade>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                {AVAILABLE_APPS.map(app => (
-                  <motion.button
-                    key={app.id}
-                    whileHover={{ y: -5 }}
-                    onClick={() => { setSelectedApp(app.id); }}
-                    className={`p-8 border text-left transition-all ${selectedApp === app.id ? "bg-black text-white border-black" : "bg-white border-black/10 hover:border-black"}`}
-                  >
-                    <div className="mb-6">{app.icon}</div>
-                    <h3 className="text-xl font-serif italic mb-2">{app.name}</h3>
-                    <p className={`text-sm ${selectedApp === app.id ? "text-white/60" : "text-black/40"}`}>{app.description}</p>
-                  </motion.button>
+              <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {AVAILABLE_APPS.map((app, idx) => (
+                  <BlurFade key={app.id} delay={0.08 * idx}>
+                    <button
+                      onClick={() => app.available && setSelectedApp(app.id)}
+                      className={`h-full rounded-xl border p-5 text-left transition-all ${
+                        selectedApp === app.id
+                          ? isDark
+                            ? "border-slate-300 bg-slate-800/50"
+                            : "border-slate-500 bg-white"
+                          : isDark
+                          ? "border-slate-700/80 bg-slate-900/40"
+                          : "border-slate-200 bg-white"
+                      } ${!app.available && "opacity-60"}`}
+                    >
+                      <div className={isDark ? "mb-4 text-slate-200" : "mb-4 text-slate-700"}>
+                        {app.icon}
+                      </div>
+                      <h3 className="mb-2 text-base font-semibold">{app.name}</h3>
+                      <p className={isDark ? "text-xs text-slate-300/75" : "text-xs text-slate-600"}>
+                        {app.description}
+                      </p>
+                      {!app.available && (
+                        <span className="mt-3 inline-block text-[10px] uppercase tracking-wider text-slate-400">
+                          Coming Soon
+                        </span>
+                      )}
+                    </button>
+                  </BlurFade>
                 ))}
               </div>
 
-              {/* Detail View interface */}
               <AnimatePresence>
                 {selectedApp && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="border border-black flex flex-col h-[400px] bg-white"
+                    exit={{ opacity: 0, y: 8 }}
+                    className={`overflow-hidden rounded-xl border ${
+                      isDark ? "border-slate-700/80 bg-slate-900/40" : "border-slate-200 bg-white"
+                    }`}
                   >
-                    <div className="p-4 border-b border-black flex justify-between items-center bg-black text-white">
-                      <div className="flex items-center gap-3">
-                        {AVAILABLE_APPS.find(a => a.id === selectedApp)?.icon}
-                        <span className="text-sm font-bold uppercase tracking-widest">
-                          {AVAILABLE_APPS.find(a => a.id === selectedApp)?.name}
-                        </span>
+                    <div
+                      className={`flex items-center justify-between border-b px-5 py-3 ${
+                        isDark ? "border-slate-700/80" : "border-slate-200"
+                      }`}
+                    >
+                      <span className="text-sm font-medium uppercase tracking-widest">
+                        {AVAILABLE_APPS.find((a) => a.id === selectedApp)?.name}
+                      </span>
+                      <button onClick={() => setSelectedApp(null)}>
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    {selectedApp === "toefl" ? (
+                      <div className="min-h-[800px]">
+                        <ToeflApp />
                       </div>
-                      <button onClick={() => setSelectedApp(null)} className="hover:opacity-50"><X size={20} /></button>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-12 flex flex-col items-center justify-center text-center space-y-6">
-                      <h2 className="text-3xl font-serif italic">Coming Soon</h2>
-                      <p className="text-black/60 max-w-md">
-                        The {AVAILABLE_APPS.find(a => a.id === selectedApp)?.name} module is currently under development. Please check back later for updates.
-                      </p>
-                    </div>
-
+                    ) : (
+                      <div className="flex h-[320px] items-center justify-center text-sm text-slate-500">
+                        이 모듈은 준비 중입니다.
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           </section>
         )}
+
+        {currentView === "blog" && (
+          <section className="relative px-6 py-16 md:px-24 md:py-20">
+            <DotPattern
+              width={20}
+              height={20}
+              cr={1}
+              className={isDark ? "text-white/[0.07]" : "text-slate-700/[0.1]"}
+            />
+            <div className="relative mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-5">
+              <div className="lg:col-span-2">
+                <BlurFade delay={0.05}>
+                  <h2 className="mb-6 text-3xl font-serif italic md:text-4xl">Blog Manager</h2>
+                </BlurFade>
+
+                <div
+                  className={`space-y-4 rounded-xl border p-5 ${
+                    isDark ? "border-slate-700/80 bg-slate-900/40" : "border-slate-200 bg-white"
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <label className={isDark ? "text-xs text-slate-300" : "text-xs text-slate-600"}>
+                      제목
+                    </label>
+                    <input
+                      value={postTitle}
+                      onChange={(e) => setPostTitle(e.target.value)}
+                      placeholder="블로그 제목"
+                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
+                        isDark
+                          ? "border-slate-600 bg-slate-950/60 text-slate-100 placeholder:text-slate-500"
+                          : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
+                      }`}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className={isDark ? "text-xs text-slate-300" : "text-xs text-slate-600"}>
+                      내용
+                    </label>
+                    <textarea
+                      value={postContent}
+                      onChange={(e) => setPostContent(e.target.value)}
+                      rows={10}
+                      placeholder="블로그 내용을 작성하세요."
+                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
+                        isDark
+                          ? "border-slate-600 bg-slate-950/60 text-slate-100 placeholder:text-slate-500"
+                          : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
+                      }`}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleSavePost}
+                      className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm ${
+                        isDark
+                          ? "border-slate-500 bg-slate-800/50 hover:bg-slate-700/60"
+                          : "border-slate-300 bg-slate-50 hover:bg-slate-100"
+                      }`}
+                    >
+                      {editingPostId ? <Save size={14} /> : <Plus size={14} />}
+                      {editingPostId ? "수정 저장" : "새 글 저장"}
+                    </button>
+                    {editingPostId && (
+                      <button
+                        onClick={clearBlogForm}
+                        className={`rounded-lg border px-4 py-2 text-sm ${
+                          isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
+                        }`}
+                      >
+                        취소
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-3">
+                <div
+                  className={`rounded-xl border ${
+                    isDark ? "border-slate-700/80 bg-slate-900/40" : "border-slate-200 bg-white"
+                  }`}
+                >
+                  <div
+                    className={`flex items-center justify-between border-b px-5 py-4 ${
+                      isDark ? "border-slate-700/80" : "border-slate-200"
+                    }`}
+                  >
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
+                      <FileText size={14} />
+                      Posts
+                    </span>
+                    <span className={isDark ? "text-xs text-slate-400" : "text-xs text-slate-500"}>
+                      총 {sortedPosts.length}개
+                    </span>
+                  </div>
+
+                  {sortedPosts.length === 0 ? (
+                    <div className={isDark ? "p-8 text-sm text-slate-400" : "p-8 text-sm text-slate-500"}>
+                      작성된 글이 없습니다.
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-slate-200/60 dark:divide-slate-700/70">
+                      {sortedPosts.map((post) => (
+                        <li key={post.id} className="p-5">
+                          <div className="mb-2 flex items-start justify-between gap-3">
+                            <div>
+                              <h3 className="text-base font-semibold">{post.title}</h3>
+                              <p className={isDark ? "text-xs text-slate-400" : "text-xs text-slate-500"}>
+                                업데이트: {new Date(post.updatedAt).toLocaleString()}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleEditPost(post)}
+                                className={`rounded-md border p-2 ${
+                                  isDark
+                                    ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
+                                    : "border-slate-300 text-slate-700 hover:bg-slate-100"
+                                }`}
+                                aria-label="글 수정"
+                              >
+                                <Pencil size={13} />
+                              </button>
+                              <button
+                                onClick={() => handleDeletePost(post.id)}
+                                className={`rounded-md border p-2 ${
+                                  isDark
+                                    ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
+                                    : "border-slate-300 text-slate-700 hover:bg-slate-100"
+                                }`}
+                                aria-label="글 삭제"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </div>
+                          <p className={isDark ? "line-clamp-3 text-sm text-slate-300/85" : "line-clamp-3 text-sm text-slate-700"}>
+                            {post.content}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
-      {/* Footer */}
-      <footer id="contact" className="py-24 px-6 md:px-24 bg-black text-white">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-12">
-          <div className="max-w-2xl">
-            <h2 className="text-5xl md:text-8xl font-serif italic mb-8">Let's connect.</h2>
-            <div className="flex flex-wrap gap-6">
-              <a href="mailto:hello@ipseforma.com" className="p-4 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all">
-                <Mail size={20} />
-              </a>
-              <a href="#" className="p-4 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all">
-                <Github size={20} />
-              </a>
-            </div>
+      <footer
+        className={`border-t px-6 py-16 md:px-24 ${
+          isDark ? "border-slate-700/80" : "border-slate-200"
+        }`}
+      >
+        <div className="mx-auto max-w-6xl">
+          <h2 className="mb-6 text-2xl font-serif italic">Contact</h2>
+          <div className="mb-10 flex flex-wrap gap-3">
+            <a
+              href="mailto:connect@ipseforma.com"
+              className={`inline-flex items-center justify-center rounded-lg border p-2.5 ${
+                isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
+              }`}
+              aria-label="이메일"
+            >
+              <Mail size={16} />
+            </a>
+            <a
+              href="https://github.com/zeenoo11"
+              target="_blank"
+              rel="noreferrer"
+              className={`inline-flex items-center justify-center rounded-lg border p-2.5 ${
+                isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
+              }`}
+              aria-label="깃허브"
+            >
+              <Github size={16} />
+            </a>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-[0.5em] text-white/20 mb-2">ipseforma Studio</p>
-            <p className="text-sm font-medium">Seoul, South Korea</p>
+          <div className={`flex justify-end text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            <span>@2026 ipseforma</span>
           </div>
-        </div>
-
-        <div className="mt-24 pt-8 border-t border-white/5 flex justify-between items-center text-[10px] uppercase tracking-widest text-white/20">
-          <p>© 2024 ipseforma</p>
-          <p>자아를 빚어내는 공간</p>
         </div>
       </footer>
     </div>

@@ -4,16 +4,69 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", serif;
+
+  /* Magic UI 애니메이션 */
+  --animate-aurora: aurora 8s ease infinite alternate;
+  --animate-shiny-text: shiny-text 8s infinite;
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  --animate-meteor: meteor 5s linear infinite;
+  --animate-gradient: gradient 8s linear infinite;
+  --animate-shine: shine var(--duration) infinite linear;
+  --animate-grid: grid 15s linear infinite;
+
+  @keyframes aurora {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes shiny-text {
+    0%, 90%, 100% { background-position: calc(-100% - var(--shiny-width)) 0; }
+    30%, 60% { background-position: calc(100% + var(--shiny-width)) 0; }
+  }
+
+  @keyframes shimmer-slide {
+    to { transform: translate(calc(100cqw - 100%), 0); }
+  }
+
+  @keyframes spin-around {
+    0% { transform: translateZ(0) rotate(0); }
+    15%, 35% { transform: translateZ(0) rotate(90deg); }
+    65%, 85% { transform: translateZ(0) rotate(270deg); }
+    100% { transform: translateZ(0) rotate(360deg); }
+  }
+
+  @keyframes meteor {
+    0% { transform: rotate(var(--angle)) translateX(0); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: rotate(var(--angle)) translateX(-500px); opacity: 0; }
+  }
+
+  @keyframes gradient {
+    to { background-position: var(--bg-size) center; }
+  }
+
+  @keyframes shine {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+
+  @keyframes grid {
+    0% { transform: translateY(-50%); }
+    100% { transform: translateY(0); }
+  }
 }
 
 @layer base {
   body {
-    @apply bg-white text-black antialiased selection:bg-black selection:text-white;
+    @apply bg-[#f6f8fc] text-slate-900 antialiased selection:bg-slate-900 selection:text-slate-100;
   }
 }
 
-.glass {
-  @apply bg-white/80 backdrop-blur-md border border-black/5;
+.glass-dark {
+  @apply bg-white/5 backdrop-blur-md border border-white/10;
 }
 
 .text-balance {
