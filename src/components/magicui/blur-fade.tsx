@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import React, { useRef } from "react"
 import {
   AnimatePresence,
   motion,
@@ -11,6 +11,7 @@ import {
 type MarginType = UseInViewOptions["margin"]
 
 interface BlurFadeProps extends MotionProps {
+  key?: React.Key;
   children: React.ReactNode
   className?: string
   variant?: {

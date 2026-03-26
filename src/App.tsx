@@ -260,7 +260,8 @@ export default function App() {
                   ? "border-white/20 text-white/70 hover:text-white"
                   : "border-slate-300 text-slate-600 hover:text-slate-900"
               }`}
-              aria-label="테마 전환"
+              aria-label="Toggle theme"
+              title="Toggle theme"
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
@@ -272,13 +273,17 @@ export default function App() {
               className={`rounded-lg border p-2 ${
                 isDark ? "border-white/20 text-white/70" : "border-slate-300 text-slate-600"
               }`}
-              aria-label="테마 전환"
+              aria-label="Toggle theme"
+              title="Toggle theme"
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             <button
               className={isDark ? "text-white/80" : "text-slate-700"}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+              title="Toggle menu"
+              aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -512,7 +517,11 @@ export default function App() {
                       <span className="text-sm font-medium uppercase tracking-widest">
                         {AVAILABLE_APPS.find((a) => a.id === selectedApp)?.name}
                       </span>
-                      <button onClick={() => setSelectedApp(null)}>
+                      <button
+                        onClick={() => setSelectedApp(null)}
+                        aria-label="Close app"
+                        title="Close app"
+                      >
                         <X size={16} />
                       </button>
                     </div>
@@ -652,7 +661,8 @@ export default function App() {
                                     ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
                                     : "border-slate-300 text-slate-700 hover:bg-slate-100"
                                 }`}
-                                aria-label="글 수정"
+                                aria-label="Edit post"
+                                title="Edit post"
                               >
                                 <Pencil size={13} />
                               </button>
@@ -663,7 +673,8 @@ export default function App() {
                                     ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
                                     : "border-slate-300 text-slate-700 hover:bg-slate-100"
                                 }`}
-                                aria-label="글 삭제"
+                                aria-label="Delete post"
+                                title="Delete post"
                               >
                                 <Trash2 size={13} />
                               </button>
@@ -696,7 +707,8 @@ export default function App() {
               className={`inline-flex items-center justify-center rounded-lg border p-2.5 ${
                 isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
               }`}
-              aria-label="이메일"
+              aria-label="Email"
+              title="Email"
             >
               <Mail size={16} />
             </a>
@@ -707,7 +719,8 @@ export default function App() {
               className={`inline-flex items-center justify-center rounded-lg border p-2.5 ${
                 isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
               }`}
-              aria-label="깃허브"
+              aria-label="GitHub"
+              title="GitHub"
             >
               <Github size={16} />
             </a>

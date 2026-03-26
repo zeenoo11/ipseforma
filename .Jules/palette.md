@@ -1,0 +1,3 @@
+## 2024-05-24 - Standardizing Icon-only Button Accessibility
+**Learning:** Found mismatched languages in ARIA labels (legacy Korean "테마 전환", "글 수정" mixed with English UI) and missing accessibility attributes (no aria-labels or tooltips on Menu or Close App buttons).
+**Action:** Always translate legacy Korean ARIA labels to English when encountered, and systematically add `aria-label`s, `title` tooltips, and appropriate ARIA states (like `aria-expanded`) to all icon-only buttons to ensure consistency and accessibility.
