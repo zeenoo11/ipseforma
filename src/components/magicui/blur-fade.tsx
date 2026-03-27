@@ -10,9 +10,12 @@ import {
 
 type MarginType = UseInViewOptions["margin"]
 
+import React from "react";
+
 interface BlurFadeProps extends MotionProps {
   children: React.ReactNode
   className?: string
+  key?: string | number;
   variant?: {
     hidden: { y: number }
     visible: { y: number }

@@ -1,10 +1,12 @@
-import { ComponentPropsWithoutRef } from "react"
+import React, { ComponentPropsWithoutRef } from "react"
 import { cn } from "@/lib/utils"
 
-export interface AnimatedGradientTextProps extends ComponentPropsWithoutRef<"div"> {
+export interface AnimatedGradientTextProps extends ComponentPropsWithoutRef<"span"> {
   speed?: number
   colorFrom?: string
   colorTo?: string
+  children?: React.ReactNode
+  className?: string
 }
 
 export function AnimatedGradientText({
