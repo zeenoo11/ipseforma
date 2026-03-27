@@ -255,7 +255,7 @@ export default function App() {
             </button>
             <button
               onClick={() => setTheme(isDark ? "light" : "dark")}
-              className={`rounded-lg border p-2 transition-colors ${
+              className={`rounded-lg border p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
                 isDark
                   ? "border-white/20 text-white/70 hover:text-white"
                   : "border-slate-300 text-slate-600 hover:text-slate-900"
@@ -269,17 +269,19 @@ export default function App() {
           <div className="flex items-center gap-3 md:hidden">
             <button
               onClick={() => setTheme(isDark ? "light" : "dark")}
-              className={`rounded-lg border p-2 ${
-                isDark ? "border-white/20 text-white/70" : "border-slate-300 text-slate-600"
+              className={`rounded-lg border p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
+                isDark ? "border-white/20 text-white/70 hover:bg-white/10" : "border-slate-300 text-slate-600 hover:bg-slate-100"
               }`}
               aria-label="Toggle theme"
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             <button
-              className={isDark ? "text-white/80" : "text-slate-700"}
+              className={`rounded-lg p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
+                isDark ? "text-white/80 hover:bg-white/10" : "text-slate-700 hover:bg-slate-100"
+              }`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-label={isMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
               aria-expanded={isMenuOpen}
             >
               {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -514,7 +516,13 @@ export default function App() {
                       <span className="text-sm font-medium uppercase tracking-widest">
                         {AVAILABLE_APPS.find((a) => a.id === selectedApp)?.name}
                       </span>
-                      <button onClick={() => setSelectedApp(null)} aria-label="Close app">
+                      <button
+                        onClick={() => setSelectedApp(null)}
+                        className={`rounded-md p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
+                          isDark ? "hover:bg-slate-800 text-slate-400 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-slate-900"
+                        }`}
+                        aria-label="앱 닫기"
+                      >
                         <X size={16} />
                       </button>
                     </div>
@@ -632,8 +640,10 @@ export default function App() {
                   </div>
 
                   {sortedPosts.length === 0 ? (
-                    <div className={isDark ? "p-8 text-sm text-slate-400" : "p-8 text-sm text-slate-500"}>
-                      작성된 글이 없습니다.
+                    <div className={`flex flex-col items-center justify-center py-16 px-4 text-center ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      <FileText size={48} className={`mb-4 ${isDark ? "text-slate-600" : "text-slate-300"}`} />
+                      <p className="text-base font-medium">작성된 글이 없습니다.</p>
+                      <p className="mt-1 text-sm">첫 번째 글을 작성해 보세요.</p>
                     </div>
                   ) : (
                     <ul className="divide-y divide-slate-200/60 dark:divide-slate-700/70">

@@ -1,4 +1,3 @@
-
-## 2025-03-08 - ARIA Labels on Icon-Only Buttons
-**Learning:** Found an accessibility issue pattern specific to this app's components where dynamic icon-only toggles (like the mobile menu) were missing `aria-label` and `aria-expanded` attributes, making them inaccessible for screen readers.
-**Action:** Applied `aria-label`s and `aria-expanded` state to icon-only buttons to improve screen reader accessibility and navigation.
+## 2024-05-24 - Missing ARIA labels and focus states on icon-only buttons
+**Learning:** Found that custom icon-only buttons (such as mobile menu toggles and modal close buttons) frequently lack \`aria-label\`s and proper \`focus-visible\` states in this app.
+**Action:** Always ensure \`aria-label\` and keyboard accessibility (like \`focus-visible:ring\`) are added when working with icon-only interactive elements.

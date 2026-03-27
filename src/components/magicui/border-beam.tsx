@@ -1,3 +1,4 @@
+import React from "react";
 import { motion, MotionStyle, Transition } from "motion/react"
 import React from "react"
 import { cn } from "@/lib/utils"
