@@ -3,74 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
-  BookOpen,
-  Cpu,
-  ExternalLink,
-  FileText,
   Github,
-  Layout,
   Mail,
   Menu,
   Moon,
-  Pencil,
   PenTool,
-  Plus,
-  Save,
   Sun,
-  Trash2,
   X,
 } from "lucide-react";
 import { DotPattern } from "@/components/magicui/dot-pattern";
 import { BlurFade } from "@/components/magicui/blur-fade";
-import { BorderBeam } from "@/components/magicui/border-beam";
 import { ToeflApp } from "./toefl/ToeflApp";
 
-type View = "home" | "apps" | "blog";
+type View = "home" | "apps";
 type Theme = "light" | "dark";
-
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Project {
-  title: string;
-  category: string;
-  description: string;
-  image: string;
-  tags: string[];
-}
-
-const PROJECTS: Project[] = [
-  {
-    title: "Project Alpha",
-    category: "Design System",
-    description: "A scalable design system for modern web products.",
-    image: "https://picsum.photos/seed/alpha/800/600",
-    tags: ["React", "Tailwind", "TypeScript"],
-  },
-  {
-    title: "Project Beta",
-    category: "E-commerce",
-    description: "A structured commerce experience with clear UX flows.",
-    image: "https://picsum.photos/seed/beta/800/600",
-    tags: ["Next.js", "Stripe", "Framer Motion"],
-  },
-  {
-    title: "Project Gamma",
-    category: "Analytics",
-    description: "A clean dashboard for actionable product insights.",
-    image: "https://picsum.photos/seed/gamma/800/600",
-    tags: ["D3.js", "Python", "FastAPI"],
-  },
-];
 
 const AVAILABLE_APPS = [
   {
@@ -80,27 +30,6 @@ const AVAILABLE_APPS = [
     description: "Practice for the updated TOEFL Writing task.",
     available: true,
   },
-  {
-    id: "writer",
-    name: "Creative Writer",
-    icon: <BookOpen size={20} />,
-    description: "Writing workflow assistant.",
-    available: false,
-  },
-  {
-    id: "coder",
-    name: "Code Helper",
-    icon: <Cpu size={20} />,
-    description: "Refactoring and debugging support.",
-    available: false,
-  },
-  {
-    id: "designer",
-    name: "Design Critic",
-    icon: <Layout size={20} />,
-    description: "UI and UX review support.",
-    available: false,
-  },
 ];
 
 export default function App() {
@@ -108,84 +37,8 @@ export default function App() {
   const [currentView, setCurrentView] = useState<View>("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [postTitle, setPostTitle] = useState("");
-  const [postContent, setPostContent] = useState("");
-  const [editingPostId, setEditingPostId] = useState<string | null>(null);
 
   const isDark = theme === "dark";
-
-  useEffect(() => {
-    const raw = localStorage.getItem("ipseforma-blog-posts");
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as BlogPost[];
-      setBlogPosts(parsed);
-    } catch {
-      setBlogPosts([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("ipseforma-blog-posts", JSON.stringify(blogPosts));
-  }, [blogPosts]);
-
-  const sortedPosts = useMemo(
-    () =>
-      [...blogPosts].sort(
-        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      ),
-    [blogPosts]
-  );
-
-  const clearBlogForm = () => {
-    setPostTitle("");
-    setPostContent("");
-    setEditingPostId(null);
-  };
-
-  const handleSavePost = () => {
-    if (!postTitle.trim() || !postContent.trim()) return;
-    const now = new Date().toISOString();
-
-    if (editingPostId) {
-      setBlogPosts((prev) =>
-        prev.map((post) =>
-          post.id === editingPostId
-            ? {
-                ...post,
-                title: postTitle.trim(),
-                content: postContent.trim(),
-                updatedAt: now,
-              }
-            : post
-        )
-      );
-      clearBlogForm();
-      return;
-    }
-
-    const newPost: BlogPost = {
-      id: crypto.randomUUID(),
-      title: postTitle.trim(),
-      content: postContent.trim(),
-      createdAt: now,
-      updatedAt: now,
-    };
-    setBlogPosts((prev) => [newPost, ...prev]);
-    clearBlogForm();
-  };
-
-  const handleEditPost = (post: BlogPost) => {
-    setEditingPostId(post.id);
-    setPostTitle(post.title);
-    setPostContent(post.content);
-  };
-
-  const handleDeletePost = (postId: string) => {
-    setBlogPosts((prev) => prev.filter((post) => post.id !== postId));
-    if (editingPostId === postId) clearBlogForm();
-  };
 
   return (
     <div
@@ -239,20 +92,16 @@ export default function App() {
             >
               Apps
             </button>
-            <button
-              onClick={() => setCurrentView("blog")}
+            <a
+              href="https://blog.ipseforma.com"
               className={
-                currentView === "blog"
-                  ? isDark
-                    ? "text-white"
-                    : "text-slate-900"
-                  : isDark
+                isDark
                   ? "text-white/50 hover:text-white"
                   : "text-slate-500 hover:text-slate-900"
               }
             >
               Blog
-            </button>
+            </a>
             <button
               onClick={() => setTheme(isDark ? "light" : "dark")}
               className={`rounded-lg border p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
@@ -318,15 +167,12 @@ export default function App() {
             >
               Apps
             </button>
-            <button
-              onClick={() => {
-                setCurrentView("blog");
-                setIsMenuOpen(false);
-              }}
+            <a
+              href="https://blog.ipseforma.com"
               className="text-xl font-semibold uppercase tracking-widest"
             >
               Blog
-            </button>
+            </a>
           </motion.div>
         )}
       </AnimatePresence>
@@ -342,15 +188,6 @@ export default function App() {
                 className={isDark ? "text-white/[0.08]" : "text-slate-700/[0.10]"}
               />
               <div className="relative mx-auto max-w-6xl">
-                <BlurFade delay={0.05}>
-                  <p
-                    className={`mb-4 text-xs font-medium uppercase tracking-[0.3em] ${
-                      isDark ? "text-slate-300/70" : "text-slate-500"
-                    }`}
-                  >
-                    Portfolio
-                  </p>
-                </BlurFade>
                 <BlurFade delay={0.1}>
                   <h1 className="mb-6 text-5xl font-serif italic tracking-tight md:text-7xl">
                     Ipse + Forma
@@ -378,75 +215,8 @@ export default function App() {
                     >
                       Open Apps <ArrowRight size={14} />
                     </button>
-                    <button
-                      onClick={() => {
-                        const section = document.getElementById("work");
-                        if (section) section.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className={`inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition-colors ${
-                        isDark
-                          ? "border-slate-500/50 hover:bg-slate-700/30"
-                          : "border-slate-300 hover:bg-slate-50"
-                      }`}
-                    >
-                      View Projects <ExternalLink size={14} />
-                    </button>
                   </div>
                 </BlurFade>
-              </div>
-            </section>
-
-            <section id="work" className="px-6 py-16 md:px-24 md:py-20">
-              <div className="mx-auto max-w-6xl">
-                <BlurFade delay={0.05} inView>
-                  <h2 className="mb-10 text-3xl font-serif italic md:text-4xl">Selected Projects</h2>
-                </BlurFade>
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  {PROJECTS.map((project, idx) => (
-                    <BlurFade key={project.title} delay={idx * 0.1} inView>
-                      <article
-                        className={`relative overflow-hidden rounded-xl border ${
-                          isDark ? "border-slate-700/80 bg-slate-900/50" : "border-slate-200 bg-white"
-                        }`}
-                      >
-                        <img
-                          src={project.image}
-                          alt={project.title}
-                          referrerPolicy="no-referrer"
-                          className="h-52 w-full object-cover"
-                        />
-                        <div className="space-y-3 p-5">
-                          <p className={isDark ? "text-xs text-slate-300/70" : "text-xs text-slate-500"}>
-                            {project.category}
-                          </p>
-                          <h3 className="text-xl font-semibold">{project.title}</h3>
-                          <p className={isDark ? "text-sm text-slate-300/80" : "text-sm text-slate-600"}>
-                            {project.description}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {project.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className={`rounded-full border px-2.5 py-1 text-[10px] ${
-                                  isDark
-                                    ? "border-slate-600 text-slate-300"
-                                    : "border-slate-300 text-slate-600"
-                                }`}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <BorderBeam
-                          colorFrom={isDark ? "#64748b" : "#94a3b8"}
-                          colorTo={isDark ? "#e2e8f0" : "#475569"}
-                          duration={8}
-                        />
-                      </article>
-                    </BlurFade>
-                  ))}
-                </div>
               </div>
             </section>
 
@@ -539,157 +309,6 @@ export default function App() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-          </section>
-        )}
-
-        {currentView === "blog" && (
-          <section className="relative px-6 py-16 md:px-24 md:py-20">
-            <DotPattern
-              width={20}
-              height={20}
-              cr={1}
-              className={isDark ? "text-white/[0.07]" : "text-slate-700/[0.1]"}
-            />
-            <div className="relative mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-5">
-              <div className="lg:col-span-2">
-                <BlurFade delay={0.05}>
-                  <h2 className="mb-6 text-3xl font-serif italic md:text-4xl">Blog Manager</h2>
-                </BlurFade>
-
-                <div
-                  className={`space-y-4 rounded-xl border p-5 ${
-                    isDark ? "border-slate-700/80 bg-slate-900/40" : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div className="space-y-2">
-                    <label className={isDark ? "text-xs text-slate-300" : "text-xs text-slate-600"}>
-                      제목
-                    </label>
-                    <input
-                      value={postTitle}
-                      onChange={(e) => setPostTitle(e.target.value)}
-                      placeholder="블로그 제목"
-                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
-                        isDark
-                          ? "border-slate-600 bg-slate-950/60 text-slate-100 placeholder:text-slate-500"
-                          : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
-                      }`}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className={isDark ? "text-xs text-slate-300" : "text-xs text-slate-600"}>
-                      내용
-                    </label>
-                    <textarea
-                      value={postContent}
-                      onChange={(e) => setPostContent(e.target.value)}
-                      rows={10}
-                      placeholder="블로그 내용을 작성하세요."
-                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none ${
-                        isDark
-                          ? "border-slate-600 bg-slate-950/60 text-slate-100 placeholder:text-slate-500"
-                          : "border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
-                      }`}
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleSavePost}
-                      className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm ${
-                        isDark
-                          ? "border-slate-500 bg-slate-800/50 hover:bg-slate-700/60"
-                          : "border-slate-300 bg-slate-50 hover:bg-slate-100"
-                      }`}
-                    >
-                      {editingPostId ? <Save size={14} /> : <Plus size={14} />}
-                      {editingPostId ? "수정 저장" : "새 글 저장"}
-                    </button>
-                    {editingPostId && (
-                      <button
-                        onClick={clearBlogForm}
-                        className={`rounded-lg border px-4 py-2 text-sm ${
-                          isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
-                        }`}
-                      >
-                        취소
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-3">
-                <div
-                  className={`rounded-xl border ${
-                    isDark ? "border-slate-700/80 bg-slate-900/40" : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div
-                    className={`flex items-center justify-between border-b px-5 py-4 ${
-                      isDark ? "border-slate-700/80" : "border-slate-200"
-                    }`}
-                  >
-                    <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
-                      <FileText size={14} />
-                      Posts
-                    </span>
-                    <span className={isDark ? "text-xs text-slate-400" : "text-xs text-slate-500"}>
-                      총 {sortedPosts.length}개
-                    </span>
-                  </div>
-
-                  {sortedPosts.length === 0 ? (
-                    <div className={`flex flex-col items-center justify-center py-16 px-4 text-center ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                      <FileText size={48} className={`mb-4 ${isDark ? "text-slate-600" : "text-slate-300"}`} />
-                      <p className="text-base font-medium">작성된 글이 없습니다.</p>
-                      <p className="mt-1 text-sm">첫 번째 글을 작성해 보세요.</p>
-                    </div>
-                  ) : (
-                    <ul className="divide-y divide-slate-200/60 dark:divide-slate-700/70">
-                      {sortedPosts.map((post) => (
-                        <li key={post.id} className="p-5">
-                          <div className="mb-2 flex items-start justify-between gap-3">
-                            <div>
-                              <h3 className="text-base font-semibold">{post.title}</h3>
-                              <p className={isDark ? "text-xs text-slate-400" : "text-xs text-slate-500"}>
-                                업데이트: {new Date(post.updatedAt).toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleEditPost(post)}
-                                className={`rounded-md border p-2 ${
-                                  isDark
-                                    ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
-                                    : "border-slate-300 text-slate-700 hover:bg-slate-100"
-                                }`}
-                                aria-label="Edit post"
-                              >
-                                <Pencil size={13} />
-                              </button>
-                              <button
-                                onClick={() => handleDeletePost(post.id)}
-                                className={`rounded-md border p-2 ${
-                                  isDark
-                                    ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
-                                    : "border-slate-300 text-slate-700 hover:bg-slate-100"
-                                }`}
-                                aria-label="Delete post"
-                              >
-                                <Trash2 size={13} />
-                              </button>
-                            </div>
-                          </div>
-                          <p className={isDark ? "line-clamp-3 text-sm text-slate-300/85" : "line-clamp-3 text-sm text-slate-700"}>
-                            {post.content}
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
             </div>
           </section>
         )}
