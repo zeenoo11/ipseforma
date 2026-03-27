@@ -260,7 +260,7 @@ export default function App() {
                   ? "border-white/20 text-white/70 hover:text-white"
                   : "border-slate-300 text-slate-600 hover:text-slate-900"
               }`}
-              aria-label="테마 전환"
+              aria-label="Toggle theme"
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
@@ -272,7 +272,7 @@ export default function App() {
               className={`rounded-lg border p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${
                 isDark ? "border-white/20 text-white/70 hover:bg-white/10" : "border-slate-300 text-slate-600 hover:bg-slate-100"
               }`}
-              aria-label="테마 전환"
+              aria-label="Toggle theme"
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
@@ -664,7 +664,7 @@ export default function App() {
                                     ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
                                     : "border-slate-300 text-slate-700 hover:bg-slate-100"
                                 }`}
-                                aria-label="글 수정"
+                                aria-label="Edit post"
                               >
                                 <Pencil size={13} />
                               </button>
@@ -675,7 +675,7 @@ export default function App() {
                                     ? "border-slate-600 text-slate-200 hover:bg-slate-800/60"
                                     : "border-slate-300 text-slate-700 hover:bg-slate-100"
                                 }`}
-                                aria-label="글 삭제"
+                                aria-label="Delete post"
                               >
                                 <Trash2 size={13} />
                               </button>
@@ -708,7 +708,7 @@ export default function App() {
               className={`inline-flex items-center justify-center rounded-lg border p-2.5 ${
                 isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
               }`}
-              aria-label="이메일"
+              aria-label="Email"
             >
               <Mail size={16} />
             </a>
@@ -719,7 +719,7 @@ export default function App() {
               className={`inline-flex items-center justify-center rounded-lg border p-2.5 ${
                 isDark ? "border-slate-600 text-slate-200" : "border-slate-300 text-slate-700"
               }`}
-              aria-label="깃허브"
+              aria-label="GitHub"
             >
               <Github size={16} />
             </a>
