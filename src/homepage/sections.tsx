@@ -275,42 +275,16 @@ export function Philosophy({ copy }: { copy: Copy }) {
     padding: "calc(var(--gutter) * 2) var(--gutter)",
     borderTop: "1px solid var(--rule)",
   };
-  const grid: CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "5fr 7fr",
-    gap: "calc(var(--gutter)/1.2)",
-  };
-  const tenets: CSSProperties = {
-    marginTop: 80,
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0,1fr))",
-    gap: "calc(var(--gutter)/2) calc(var(--gutter)/1.5)",
-  };
+  const hasBody = copy.philosophyBody && copy.philosophyBody.length > 0;
 
   return (
     <section id="philosophy" style={sec}>
       <SectionHeader
         eyebrow={copy.philosophyEyebrow}
-        title={copy.philosophyTitle}
+        title={copy.philosophyTitle || " "}
         titleEm={copy.philosophyTitleEm}
       />
-      <div style={grid} className="phil-grid">
-        <div className="reveal" data-delay="1">
-          <p
-            className="prose"
-            style={{
-              fontSize: "calc(20px * var(--density))",
-              color: "var(--ink)",
-              fontStyle: "italic",
-              fontFamily: "var(--serif)",
-              fontWeight: 400,
-              lineHeight: 1.4,
-              maxWidth: "28ch",
-            }}
-          >
-            &ldquo;{copy.philosophyTitle} {copy.philosophyTitleEm}&rdquo;
-          </p>
-        </div>
+      {hasBody ? (
         <div>
           {copy.philosophyBody.map((p, i) => (
             <p
@@ -323,46 +297,15 @@ export function Philosophy({ copy }: { copy: Copy }) {
             </p>
           ))}
         </div>
-      </div>
-
-      <div style={tenets}>
-        {copy.tenets.map((t, i) => (
-          <div
-            key={i}
-            className="reveal"
-            data-delay={String((i % 3) + 1)}
-            style={{ paddingTop: 24, borderTop: "1px solid var(--rule)" }}
-          >
-            <div className="meta" style={{ marginBottom: 10 }}>
-              {t.n}
-            </div>
-            <div
-              style={{
-                fontFamily: "var(--serif)",
-                fontStyle: "italic",
-                fontWeight: 400,
-                fontSize: 26,
-                lineHeight: 1.2,
-                color: "var(--ink)",
-                marginBottom: 8,
-              }}
-            >
-              {t.t}
-            </div>
-            <div
-              style={{
-                fontFamily: "var(--read)",
-                fontWeight: 300,
-                fontSize: 15,
-                color: "var(--ink-soft)",
-                lineHeight: 1.6,
-              }}
-            >
-              {t.s}
-            </div>
-          </div>
-        ))}
-      </div>
+      ) : (
+        <p
+          className="prose reveal"
+          data-delay="1"
+          style={{ fontStyle: "italic", color: "var(--ink-whisper)" }}
+        >
+          — to be written —
+        </p>
+      )}
     </section>
   );
 }
@@ -440,6 +383,7 @@ export function BlogTeaser({ copy }: { copy: Copy }) {
   };
 
   const hostBase = "https://blog.ipseforma.com/";
+  const hasPosts = copy.blogPosts && copy.blogPosts.length > 0;
 
   return (
     <section id="blog" style={sec}>
@@ -449,9 +393,13 @@ export function BlogTeaser({ copy }: { copy: Copy }) {
         titleEm={copy.blogTitleEm}
       />
       <div style={head} className="split-grid">
-        <p className="prose reveal" data-delay="1">
-          {copy.blogBody}
-        </p>
+        {copy.blogBody ? (
+          <p className="prose reveal" data-delay="1">
+            {copy.blogBody}
+          </p>
+        ) : (
+          <span />
+        )}
         <div className="reveal" data-delay="2" style={{ textAlign: "right" }}>
           <div className="meta" style={{ marginBottom: 10 }}>
             {copy.blogRecentLabel}
@@ -472,34 +420,36 @@ export function BlogTeaser({ copy }: { copy: Copy }) {
         </div>
       </div>
 
-      <div style={listWrap}>
-        {copy.blogPosts.map((p, i) => (
-          <a
-            key={p.slug}
-            href={hostBase + p.slug}
-            target="_blank"
-            rel="noreferrer"
-            className="reveal blog-row"
-            data-delay={String((i % 3) + 1)}
-            style={row}
-          >
-            <span style={no}>{p.no}</span>
-            <span style={meta}>
-              <span>{p.date}</span>
-              <span>
-                {p.tag} · {p.readMin} min
+      {hasPosts && (
+        <div style={listWrap}>
+          {copy.blogPosts.map((p, i) => (
+            <a
+              key={p.slug}
+              href={hostBase + p.slug}
+              target="_blank"
+              rel="noreferrer"
+              className="reveal blog-row"
+              data-delay={String((i % 3) + 1)}
+              style={row}
+            >
+              <span style={no}>{p.no}</span>
+              <span style={meta}>
+                <span>{p.date}</span>
+                <span>
+                  {p.tag} · {p.readMin} min
+                </span>
               </span>
-            </span>
-            <span>
-              <div style={title}>{p.title}</div>
-              <div style={dek}>{p.dek}</div>
-            </span>
-            <span style={readLink}>
-              {copy.blogReadLabel} <span aria-hidden="true">→</span>
-            </span>
-          </a>
-        ))}
-      </div>
+              <span>
+                <div style={title}>{p.title}</div>
+                <div style={dek}>{p.dek}</div>
+              </span>
+              <span style={readLink}>
+                {copy.blogReadLabel} <span aria-hidden="true">→</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -533,13 +483,29 @@ export function Contact({ copy }: { copy: Copy }) {
         titleEm={copy.contactTitleEm}
       />
       <div style={wrap} className="split-grid">
-        <p className="prose reveal" data-delay="1">
-          {copy.contactBody}
-        </p>
+        {copy.contactBody ? (
+          <p className="prose reveal" data-delay="1">
+            {copy.contactBody}
+          </p>
+        ) : (
+          <span />
+        )}
         <div className="reveal" data-delay="2">
-          <a href={"mailto:" + copy.email} style={mail}>
-            {copy.email}
-          </a>
+          {copy.email ? (
+            <a href={"mailto:" + copy.email} style={mail}>
+              {copy.email}
+            </a>
+          ) : (
+            <span
+              style={{
+                ...mail,
+                color: "var(--ink-whisper)",
+                borderBottom: "none",
+              }}
+            >
+              — to be added —
+            </span>
+          )}
         </div>
       </div>
     </section>
