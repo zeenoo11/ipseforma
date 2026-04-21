@@ -5,10 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "blog:deps": "npm --prefix astro-paper install",
-    "blog:build": "npm run blog:deps && npm --prefix astro-paper run build",
-    "blog:copy": "node -e \"const fs=require('fs');const path=require('path');const src=path.join('astro-paper','dist');const dest=path.join('dist','blog');fs.rmSync(dest,{recursive:true,force:true});fs.mkdirSync('dist',{recursive:true});fs.cpSync(src,dest,{recursive:true});\"",
-    "build": "npm run blog:build && vite build && npm run blog:copy",
+    "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
