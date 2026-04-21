@@ -1,20 +1,32 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import express from 'express';
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
+function blogStatic(blogDist: string): Plugin {
+  const serve = express.static(blogDist, { extensions: ['html'] });
   return {
-    plugins: [react(), tailwindcss()],
+    name: 'blog-static',
+    configureServer(server) {
+      server.middlewares.use('/blog', serve);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use('/blog', serve);
+    },
+  };
+}
+
+export default defineConfig(() => {
+  const blogDist = path.resolve(__dirname, 'astro-paper', 'dist');
+  return {
+    plugins: [react(), tailwindcss(), blogStatic(blogDist)],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
     },
   };
