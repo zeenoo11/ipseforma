@@ -21,41 +21,38 @@ export function NowWidget({ copy }: Props) {
 
   const wrap: CSSProperties = {
     position: "fixed",
-    top: "calc(var(--gutter) + 70px)",
+    bottom: 24,
     right: "var(--gutter)",
-    zIndex: 6,
-    padding: "10px 14px",
-    background: "color-mix(in oklab, var(--paper) 82%, transparent)",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
-    border: "1px solid var(--rule)",
+    zIndex: 10,
+    padding: "8px 12px",
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    border: "1px solid var(--colors-hairline)",
     borderRadius: 999,
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    color: "var(--ink-soft)",
+    fontFamily: "var(--font-body)",
+    fontSize: 12,
+    color: "var(--colors-ink)",
     display: "inline-flex",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   };
 
   const dot: CSSProperties = {
     width: 6,
     height: 6,
     borderRadius: "50%",
-    background: "oklch(0.68 0.14 150)",
+    background: "var(--colors-primary)",
     display: "inline-block",
-    animation: "ipsePulse 2.6s ease-in-out infinite",
   };
 
   return (
     <div className="now-widget" style={wrap} aria-label="Local time">
       <span style={dot} />
-      <span>{copy.localTime}</span>
+      <span style={{ opacity: 0.6 }}>{copy.localTime}</span>
       <span
         style={{
-          color: "var(--ink)",
+          fontWeight: 600,
           fontVariantNumeric: "tabular-nums",
         }}
       >

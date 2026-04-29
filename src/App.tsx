@@ -17,20 +17,17 @@ import {
 } from "./homepage/sections";
 
 type Theme = "light" | "dark";
-type Density = "airy" | "balanced" | "dense";
 
 interface AppState {
   theme: Theme;
   lang: Lang;
   heroIndex: number;
-  density: Density;
 }
 
 const DEFAULTS: AppState = {
   theme: "light",
   lang: "en",
   heroIndex: 0,
-  density: "balanced",
 };
 
 export default function App() {
@@ -56,31 +53,9 @@ export default function App() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("theme-dark", state.theme === "dark");
-    const d =
-      state.density === "airy" ? 1.08 : state.density === "dense" ? 0.92 : 1;
-    const g =
-      state.density === "airy"
-        ? "clamp(28px, 6vw, 112px)"
-        : state.density === "dense"
-        ? "clamp(18px, 4vw, 64px)"
-        : "clamp(24px, 5vw, 88px)";
-    root.style.setProperty("--density", String(d));
-    root.style.setProperty("--gutter", g);
-  }, [state.theme, state.density]);
+  }, [state.theme]);
 
   useReveal([state.lang, state.heroIndex]);
-
-  const [prog, setProg] = useState(0);
-  useEffect(() => {
-    const onScroll = () => {
-      const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      setProg(max > 0 ? h.scrollTop / max : 0);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [state.lang]);
 
   const onNav = useCallback((id: string) => {
     if (id === "top") {
@@ -89,7 +64,8 @@ export default function App() {
     }
     const el = document.getElementById(id);
     if (el) {
-      const y = el.getBoundingClientRect().top + window.scrollY - 40;
+      // Offset for global nav (44px) + sub nav (52px) = 96px
+      const y = el.getBoundingClientRect().top + window.scrollY - 96;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
   }, []);
@@ -98,19 +74,6 @@ export default function App() {
 
   return (
     <>
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: 2,
-          width: `${prog * 100}%`,
-          background: "var(--ink)",
-          zIndex: 15,
-          transition: "width 0.08s linear",
-        }}
-      />
-
       <Nav
         copy={copy}
         theme={state.theme}

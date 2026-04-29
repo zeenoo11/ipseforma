@@ -11,117 +11,101 @@ interface NavProps {
 }
 
 export function Nav({ copy, theme, onTheme, lang, onLang, onNav }: NavProps) {
-  const wrap: CSSProperties = {
+  const globalNav: CSSProperties = {
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 10,
-    padding: "22px var(--gutter)",
+    height: 44,
+    background: "var(--colors-surface-black)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 100,
+    padding: "0 20px",
+  };
+
+  const subNav: CSSProperties = {
+    position: "fixed",
+    top: 44,
+    left: 0,
+    right: 0,
+    height: 52,
+    background: "rgba(245, 245, 247, 0.8)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    background: "color-mix(in oklab, var(--paper) 84%, transparent)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    borderBottom: "1px solid var(--rule)",
-    fontFamily: "var(--mono)",
-    fontSize: 11,
-    letterSpacing: "0.12em",
-    textTransform: "uppercase",
-    color: "var(--ink-soft)",
+    padding: "0 var(--gutter)",
+    borderBottom: "1px solid var(--colors-hairline)",
+    zIndex: 99,
   };
-  const brand: CSSProperties = {
-    fontFamily: "var(--serif)",
-    fontStyle: "italic",
-    fontWeight: 400,
-    fontSize: 22,
-    letterSpacing: "-0.01em",
-    color: "var(--ink)",
-    textTransform: "none",
+
+  const globalLink: CSSProperties = {
+    color: "#f5f5f7",
+    fontSize: 12,
+    margin: "0 10px",
+    textDecoration: "none",
+    opacity: 0.8,
+  };
+
+  const subNavTitle: CSSProperties = {
+    fontSize: 21,
+    fontWeight: 600,
+    color: "var(--colors-ink)",
+    cursor: "pointer",
+  };
+
+  const subNavLinks: CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 20,
+  };
+
+  const subNavLink: CSSProperties = {
+    fontSize: 12,
+    color: "var(--colors-ink)",
     textDecoration: "none",
     cursor: "pointer",
-  };
-  const navlinks: CSSProperties = { display: "flex", alignItems: "center", gap: 28 };
-  const navlink: CSSProperties = {
-    background: "transparent",
-    border: 0,
-    color: "var(--ink-soft)",
-    fontFamily: "var(--mono)",
-    fontSize: 11,
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    cursor: "pointer",
+    background: "none",
+    border: "none",
     padding: 0,
   };
-  const pill: CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    border: "1px solid var(--rule)",
-    borderRadius: 999,
-    padding: "6px 10px",
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.14em",
-  };
-  const langBtn = (active: boolean): CSSProperties => ({
-    background: "transparent",
-    border: 0,
-    padding: 0,
-    color: active ? "var(--ink)" : "var(--ink-whisper)",
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.14em",
-    cursor: "pointer",
-  });
 
   return (
-    <nav style={wrap}>
-      <a style={brand} onClick={() => onNav("top")}>
-        <span style={{ fontStyle: "italic" }}>i</span>pseforma
-        <span style={{ color: "var(--ink-whisper)" }}>.</span>
-      </a>
-      <div style={navlinks} className="navlinks-desktop">
-        <button style={navlink} onClick={() => onNav("philosophy")}>
-          {copy.nav.philosophy}
-        </button>
-        <a
-          href="https://blog.ipseforma.com"
-          target="_blank"
-          rel="noreferrer"
-          style={{ ...navlink, textDecoration: "none" }}
+    <>
+      <div style={globalNav}>
+        <a style={globalLink} onClick={() => onNav("top")}>ipseforma</a>
+        <div style={{ flex: 1 }} />
+        <button
+          onClick={onTheme}
+          style={{ ...globalLink, background: "none", border: "none", cursor: "pointer" }}
+          aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
         >
-          {copy.nav.blog} ↗
-        </a>
-        <button style={navlink} onClick={() => onNav("contact")}>
-          {copy.nav.contact}
+          {theme === "dark" ? "Light" : "Dark"}
         </button>
+        <div style={{ display: "flex", gap: 8, marginLeft: 20 }}>
+          <button onClick={() => onLang("en")} style={{ ...globalLink, background: "none", border: "none", cursor: "pointer", opacity: lang === "en" ? 1 : 0.5 }}>EN</button>
+          <button onClick={() => onLang("ko")} style={{ ...globalLink, background: "none", border: "none", cursor: "pointer", opacity: lang === "ko" ? 1 : 0.5 }}>KO</button>
+        </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={pill} role="group" aria-label="language">
-          <button onClick={() => onLang("en")} style={langBtn(lang === "en")}>
-            EN
-          </button>
-          <span style={{ color: "var(--ink-whisper)" }}>/</span>
-          <button onClick={() => onLang("ko")} style={langBtn(lang === "ko")}>
-            KO
+      <div style={subNav}>
+        <div style={subNavTitle} onClick={() => onNav("top")}>
+          {copy.brand}
+        </div>
+        <div style={subNavLinks}>
+          <button style={subNavLink} onClick={() => onNav("philosophy")}>{copy.nav.philosophy}</button>
+          <a href="https://blog.ipseforma.com" target="_blank" rel="noreferrer" style={subNavLink}>{copy.nav.blog}</a>
+          <button style={subNavLink} onClick={() => onNav("contact")}>{copy.nav.contact}</button>
+          <button className="button-primary" style={{ padding: "4px 12px", fontSize: 12 }} onClick={() => onNav("contact")}>
+            Connect
           </button>
         </div>
-        <button className="iconbtn" onClick={onTheme} aria-label="toggle theme">
-          {theme === "dark" ? (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-            </svg>
-          ) : (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-              <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.8 6.8 0 0 0 9.8 9.8z" />
-            </svg>
-          )}
-        </button>
       </div>
-    </nav>
+      <div style={{ height: 96 }} />
+    </>
   );
 }
 
@@ -133,107 +117,17 @@ interface HeroProps {
 export function Hero({ copy, heroIndex }: HeroProps) {
   const t = copy.heroTitles[heroIndex % copy.heroTitles.length];
 
-  const sec: CSSProperties = {
-    position: "relative",
-    padding:
-      "calc(var(--gutter) * 2.6) var(--gutter) calc(var(--gutter) * 1.2) var(--gutter)",
-    paddingTop: "min(26vh, 260px)",
-    minHeight: "100vh",
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr)",
-    alignContent: "center",
-  };
-  const vol: CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: 14,
-    marginBottom: 52,
-  };
-  const rule: CSSProperties = { flex: "0 0 56px", height: 1, background: "var(--ink)" };
-  const foliono: CSSProperties = {
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.2em",
-    textTransform: "uppercase",
-    color: "var(--ink-whisper)",
-  };
-  const title: CSSProperties = {
-    fontFamily: "var(--serif)",
-    fontStyle: "italic",
-    fontWeight: 300,
-    fontSize: "clamp(72px, 14.5vw, 232px)",
-    lineHeight: 0.92,
-    letterSpacing: "-0.035em",
-    color: "var(--ink)",
-    margin: 0,
-  };
-  const ampersand: CSSProperties = {
-    fontFamily: "var(--serif)",
-    fontStyle: "italic",
-    fontWeight: 300,
-    color: "var(--ink-whisper)",
-  };
-  const leadWrap: CSSProperties = {
-    marginTop: 44,
-    display: "grid",
-    gridTemplateColumns: "1fr auto",
-    gap: "calc(var(--gutter)/1.2)",
-    alignItems: "end",
-  };
-  const aside: CSSProperties = {
-    textAlign: "right",
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.14em",
-    textTransform: "uppercase",
-    color: "var(--ink-whisper)",
-    whiteSpace: "nowrap",
-  };
-  const scroll: CSSProperties = {
-    position: "absolute",
-    left: "var(--gutter)",
-    bottom: 30,
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.2em",
-    textTransform: "uppercase",
-    color: "var(--ink-whisper)",
-  };
-
   return (
-    <section id="top" style={sec}>
-      <div style={vol} className="reveal" data-delay="1">
-        <div style={rule} />
-        <span style={foliono}>{copy.heroEyebrow}</span>
-      </div>
-
-      <h1 style={title} className="reveal" data-delay="2">
-        <span>{t.a}</span>
-        <span style={ampersand}>{t.amp}</span>
-        <span>{t.b}</span>
+    <section id="top" className="product-tile product-tile-light" style={{ minHeight: "80vh", justifyContent: "center" }}>
+      <h1 className="typography-hero-display reveal" data-delay="1" style={{ marginBottom: 8 }}>
+        {t.a}{t.amp}{t.b}
       </h1>
-
-      <div style={leadWrap}>
-        <p className="prose reveal" data-delay="3" style={{ marginTop: 0 }}>
-          {copy.heroLead}
-        </p>
-        <div style={aside} className="reveal" data-delay="4">
-          {copy.heroAside}
-        </div>
-      </div>
-
-      <div style={scroll} className="reveal" data-delay="5">
-        <span>{copy.scrollHint}</span>
-        <svg width="22" height="42" viewBox="0 0 22 42" fill="none" stroke="currentColor" strokeWidth="1">
-          <rect x="0.5" y="0.5" width="21" height="41" rx="10.5" />
-          <circle cx="11" cy="11" r="1.6" fill="currentColor" stroke="none">
-            <animate attributeName="cy" values="10;24;10" dur="2.2s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0;1;0" dur="2.2s" repeatCount="indefinite" />
-          </circle>
-        </svg>
+      <p className="typography-lead reveal" data-delay="2" style={{ marginBottom: 24, maxWidth: "600px" }}>
+        {copy.heroLead}
+      </p>
+      <div className="reveal" data-delay="3" style={{ display: "flex", gap: 20 }}>
+        <a href="#philosophy" className="button-primary">Learn more</a>
+        <a href="mailto:hello@ipseforma.com" className="text-link" style={{ alignSelf: "center", fontSize: 17 }}>Connect ›</a>
       </div>
     </section>
   );
@@ -271,27 +165,21 @@ function SectionHeader({
 }
 
 export function Philosophy({ copy }: { copy: Copy }) {
-  const sec: CSSProperties = {
-    padding: "calc(var(--gutter) * 2) var(--gutter)",
-    borderTop: "1px solid var(--rule)",
-  };
   const hasBody = copy.philosophyBody && copy.philosophyBody.length > 0;
 
   return (
-    <section id="philosophy" style={sec}>
-      <SectionHeader
-        eyebrow={copy.philosophyEyebrow}
-        title={copy.philosophyTitle || " "}
-        titleEm={copy.philosophyTitleEm}
-      />
+    <section id="philosophy" className="product-tile product-tile-dark">
+      <h2 className="typography-display-lg reveal" data-delay="1" style={{ marginBottom: 16 }}>
+        {copy.philosophyTitle} {copy.philosophyTitleEm}
+      </h2>
       {hasBody ? (
-        <div>
+        <div style={{ maxWidth: "600px" }}>
           {copy.philosophyBody.map((p, i) => (
             <p
               key={i}
-              className="prose reveal"
-              data-delay={String(i + 1)}
-              style={{ marginTop: i === 0 ? 0 : 22 }}
+              className="typography-body reveal"
+              data-delay={String(i + 2)}
+              style={{ marginBottom: 16 }}
             >
               {p}
             </p>
@@ -299,9 +187,9 @@ export function Philosophy({ copy }: { copy: Copy }) {
         </div>
       ) : (
         <p
-          className="prose reveal"
-          data-delay="1"
-          style={{ fontStyle: "italic", color: "var(--ink-whisper)" }}
+          className="typography-body reveal"
+          data-delay="2"
+          style={{ fontStyle: "italic", opacity: 0.5 }}
         >
           — to be written —
         </p>
@@ -311,236 +199,117 @@ export function Philosophy({ copy }: { copy: Copy }) {
 }
 
 export function BlogTeaser({ copy }: { copy: Copy }) {
-  const sec: CSSProperties = {
-    padding: "calc(var(--gutter) * 2) var(--gutter)",
-    borderTop: "1px solid var(--rule)",
-  };
-  const head: CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "5fr 7fr",
-    gap: "calc(var(--gutter)/1.2)",
-    alignItems: "end",
-    marginBottom: 24,
-  };
-  const listWrap: CSSProperties = { borderTop: "1px solid var(--rule)", marginTop: 8 };
-  const row: CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "88px 1.1fr 2.2fr 110px",
-    gap: 24,
-    padding: "30px 0",
-    borderBottom: "1px solid var(--rule)",
-    alignItems: "baseline",
-    textDecoration: "none",
-    color: "inherit",
-    transition: "color 0.2s ease, transform 0.3s ease",
-  };
-  const no: CSSProperties = {
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.18em",
-    color: "var(--ink-whisper)",
-    textTransform: "uppercase",
-  };
-  const meta: CSSProperties = {
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.14em",
-    color: "var(--ink-whisper)",
-    textTransform: "uppercase",
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-  };
-  const title: CSSProperties = {
-    fontFamily: "var(--serif)",
-    fontStyle: "italic",
-    fontWeight: 400,
-    fontSize: "clamp(26px, 2.4vw, 34px)",
-    lineHeight: 1.08,
-    color: "var(--ink)",
-    marginBottom: 10,
-    letterSpacing: "-0.01em",
-  };
-  const dek: CSSProperties = {
-    fontFamily: "var(--read)",
-    fontWeight: 300,
-    fontSize: 16,
-    color: "var(--ink-soft)",
-    lineHeight: 1.6,
-    maxWidth: "58ch",
-  };
-  const readLink: CSSProperties = {
-    textAlign: "right",
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.18em",
-    textTransform: "uppercase",
-    color: "var(--ink-soft)",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    justifyContent: "flex-end",
-  };
-
   const hostBase = "https://blog.ipseforma.com/";
   const hasPosts = copy.blogPosts && copy.blogPosts.length > 0;
 
-  return (
-    <section id="blog" style={sec}>
-      <SectionHeader
-        eyebrow={copy.blogEyebrow}
-        title={copy.blogTitle}
-        titleEm={copy.blogTitleEm}
-      />
-      <div style={head} className="split-grid">
-        {copy.blogBody ? (
-          <p className="prose reveal" data-delay="1">
-            {copy.blogBody}
-          </p>
-        ) : (
-          <span />
-        )}
-        <div className="reveal" data-delay="2" style={{ textAlign: "right" }}>
-          <div className="meta" style={{ marginBottom: 10 }}>
-            {copy.blogRecentLabel}
-          </div>
-          <a
-            href={hostBase}
-            target="_blank"
-            rel="noreferrer"
-            className="pill"
-            style={{ textDecoration: "none" }}
-          >
-            <span className="dot" /> {copy.blogCta}{" "}
-            <span style={{ marginLeft: 6 }}>↗</span>
-          </a>
-          <div className="meta" style={{ marginTop: 14 }}>
-            {copy.blogDomain}
-          </div>
-        </div>
-      </div>
+  const rowStyle: CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    padding: "24px 0",
+    borderBottom: "1px solid var(--colors-hairline)",
+    textDecoration: "none",
+    width: "100%",
+    maxWidth: "600px",
+  };
 
-      {hasPosts && (
-        <div style={listWrap}>
-          {copy.blogPosts.map((p, i) => (
+  return (
+    <section id="blog" className="product-tile product-tile-light">
+      <h2 className="typography-display-lg reveal" data-delay="1" style={{ marginBottom: 16 }}>
+        {copy.blogTitle}
+      </h2>
+      <div style={{ maxWidth: "600px", width: "100%", textAlign: "left" }}>
+        {hasPosts ? (
+          copy.blogPosts.map((p, i) => (
             <a
               key={p.slug}
               href={hostBase + p.slug}
               target="_blank"
               rel="noreferrer"
-              className="reveal blog-row"
-              data-delay={String((i % 3) + 1)}
-              style={row}
+              className="reveal"
+              data-delay={String(i + 2)}
+              style={rowStyle}
             >
-              <span style={no}>{p.no}</span>
-              <span style={meta}>
-                <span>{p.date}</span>
-                <span>
-                  {p.tag} · {p.readMin} min
-                </span>
-              </span>
-              <span>
-                <div style={title}>{p.title}</div>
-                <div style={dek}>{p.dek}</div>
-              </span>
-              <span style={readLink}>
-                {copy.blogReadLabel} <span aria-hidden="true">→</span>
-              </span>
+              <div className="typography-body" style={{ fontWeight: 600, color: "var(--colors-ink)" }}>{p.title}</div>
+              <div className="typography-body" style={{ opacity: 0.6, fontSize: 14 }}>{p.date} · {p.readMin} min read</div>
+              <div className="text-link" style={{ marginTop: 8, fontSize: 14 }}>Read more ›</div>
             </a>
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <p className="typography-body reveal" data-delay="2" style={{ textAlign: "center" }}>
+            Check out the latest at <a href={hostBase} target="_blank" rel="noreferrer" className="text-link">{copy.blogDomain}</a>
+          </p>
+        )}
+      </div>
+      <div className="reveal" data-delay="4" style={{ marginTop: 40 }}>
+        <a href={hostBase} target="_blank" rel="noreferrer" className="button-primary">
+          {copy.blogCta}
+        </a>
+      </div>
     </section>
   );
 }
 
 export function Contact({ copy }: { copy: Copy }) {
-  const sec: CSSProperties = {
-    padding: "calc(var(--gutter) * 2) var(--gutter)",
-    borderTop: "1px solid var(--rule)",
-  };
-  const wrap: CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "5fr 7fr",
-    gap: "calc(var(--gutter)/1.2)",
-    alignItems: "end",
-  };
-  const mail: CSSProperties = {
-    fontFamily: "var(--serif)",
-    fontStyle: "italic",
-    fontWeight: 400,
-    fontSize: "clamp(34px, 5vw, 72px)",
-    color: "var(--ink)",
-    textDecoration: "none",
-    borderBottom: "1px solid var(--rule)",
-    paddingBottom: 4,
-  };
   return (
-    <section id="contact" style={sec}>
-      <SectionHeader
-        eyebrow={copy.contactEyebrow}
-        title={copy.contactTitle}
-        titleEm={copy.contactTitleEm}
-      />
-      <div style={wrap} className="split-grid">
-        {copy.contactBody ? (
-          <p className="prose reveal" data-delay="1">
-            {copy.contactBody}
-          </p>
+    <section id="contact" className="product-tile product-tile-parchment">
+      <h2 className="typography-display-lg reveal" data-delay="1" style={{ marginBottom: 16 }}>
+        {copy.contactTitle}
+      </h2>
+      <p className="typography-lead reveal" data-delay="2" style={{ marginBottom: 32, maxWidth: "600px" }}>
+        {copy.contactBody || "Feel free to reach out for collaborations or just a friendly hello."}
+      </p>
+      <div className="reveal" data-delay="3">
+        {copy.email ? (
+          <a href={"mailto:" + copy.email} className="button-primary">
+            {copy.email}
+          </a>
         ) : (
-          <span />
+          <span className="typography-body" style={{ opacity: 0.5 }}>
+            — email to be added —
+          </span>
         )}
-        <div className="reveal" data-delay="2">
-          {copy.email ? (
-            <a href={"mailto:" + copy.email} style={mail}>
-              {copy.email}
-            </a>
-          ) : (
-            <span
-              style={{
-                ...mail,
-                color: "var(--ink-whisper)",
-                borderBottom: "none",
-              }}
-            >
-              — to be added —
-            </span>
-          )}
-        </div>
       </div>
     </section>
   );
 }
 
 export function Foot({ copy }: { copy: Copy }) {
-  const sec: CSSProperties = {
-    padding:
-      "calc(var(--gutter) * 1.2) var(--gutter) calc(var(--gutter) * 1.4) var(--gutter)",
-    borderTop: "1px solid var(--rule)",
-    display: "grid",
-    gridTemplateColumns: "1fr auto",
-    gap: "calc(var(--gutter)/2)",
-    alignItems: "end",
+  const footerStyle: CSSProperties = {
+    background: "var(--colors-canvas-parchment)",
+    padding: "64px var(--gutter)",
+    color: "var(--colors-ink-muted-80)",
+    borderTop: "1px solid var(--colors-hairline)",
   };
-  const colo: CSSProperties = {
-    fontFamily: "var(--read)",
-    fontWeight: 300,
-    fontSize: 14,
-    color: "var(--ink-soft)",
-    maxWidth: "56ch",
-    fontStyle: "italic",
+
+  const columnStyle: CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
   };
-  const cop: CSSProperties = {
-    fontFamily: "var(--mono)",
-    fontSize: 10.5,
-    letterSpacing: "0.16em",
-    textTransform: "uppercase",
-    color: "var(--ink-whisper)",
-  };
+
   return (
-    <footer style={sec}>
-      <div style={colo}>{copy.colophon}</div>
-      <div style={cop}>{copy.copyright}</div>
+    <footer style={footerStyle}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 40, marginBottom: 40 }}>
+        <div style={columnStyle}>
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>Explore</div>
+          <a href="#philosophy" className="typography-dense-link text-link" style={{ color: "inherit" }}>Philosophy</a>
+          <a href="https://blog.ipseforma.com" target="_blank" rel="noreferrer" className="typography-dense-link text-link" style={{ color: "inherit" }}>Blog</a>
+          <a href="#contact" className="typography-dense-link text-link" style={{ color: "inherit" }}>Contact</a>
+        </div>
+        <div style={columnStyle}>
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>Connect</div>
+          <a href="https://github.com" target="_blank" rel="noreferrer" className="typography-dense-link text-link" style={{ color: "inherit" }}>GitHub</a>
+          <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="typography-dense-link text-link" style={{ color: "inherit" }}>LinkedIn</a>
+        </div>
+        <div style={{ ...columnStyle, gridColumn: "span 2" }}>
+          <div className="typography-body" style={{ fontStyle: "italic", opacity: 0.6 }}>
+            {copy.colophon || "Crafted with intentionality and a focus on minimalist digital experiences."}
+          </div>
+        </div>
+      </div>
+      <div style={{ borderTop: "1px solid var(--colors-hairline)", paddingTop: 20, fontSize: 12, opacity: 0.5 }}>
+        {copy.copyright}
+      </div>
     </footer>
   );
 }
